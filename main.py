@@ -25,6 +25,8 @@ class snake():
         self.extralength = []
         self.extrablocks = 0
         self.direction = ""
+        self.taily = 50
+        self.tailx = 50
 
         
     
@@ -66,12 +68,16 @@ class snake():
         #Must use 450 not 500 to compensate for width of container
         #continous movement of container until edge
             self.x += self.vel    
+            self.tailx += self.vel
         if self.leftpress and (self.x > 0):
-            self.x -= self.vel   
+            self.x -= self.vel  
+            self.tailx -= self.vel 
         if self.downpress and (self.y < 450):
-            self.y += self.vel  
+            self.y += self.vel 
+            self.taily += self.vel 
         if self.uppress and (self.y > 0):
             self.y -= self.vel
+            self.taily -= self.vel
 
         #update hitbox to ensure it moves with box (As values in hitbox have been changed)
         self.hitbox = (self.x, self.y, self.width, self.height)
@@ -90,15 +96,33 @@ class snake():
         pygame.draw.rect(win, (0,0,255), (self.hitbox), 4)
         pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, self.width, self.height))
         #Draws the extra length when food eaten
-        for i in range(len(self.extralength)):
+        for i in range(self.extrablocks):
             if self.direction == "up":
-                pygame.draw.rect(win, (255, 0, 0), (self.x, self.y + self.extralength[i] , self.width, self.height))
+                #Must draw the new block relative to the snake's tail block drawn, not relative to the snakes head block to ensure each new block follows the previous one   
+                pygame.draw.rect(win, (255, 0, 0), (self.tailx, self.taily + 50 , self.width, self.height))
+                #Set new tail coords
+                #Problem - tail cord not resetting and so every refresh, the tail just gets longer
+                #  and longer
+                self.taily = self.taily + 50
+                
             if self.direction == "down":
-                pygame.draw.rect(win, (255, 0, 0), (self.x, self.y - self.extralength[i] , self.width, self.height))
+                pygame.draw.rect(win, (255, 0, 0), (self.tailx, self.taily - 50 , self.width, self.height))
+                
+                self.taily = self.taily - 50
+                
             if self.direction == "right":
-                pygame.draw.rect(win, (255, 0, 0), (self.x - self.extralength[i], self.y , self.width, self.height))
+                pygame.draw.rect(win, (255, 0, 0), (self.tailx - 50, self.taily , self.width, self.height))
+                self.tailx = self.tailx - 50
+                
+                
             if self.direction == "left":
-                pygame.draw.rect(win, (255, 0, 0), (self.x + self.extralength[i], self.y , self.width, self.height))
+                pygame.draw.rect(win, (255, 0, 0), (self.tailx + 50, self.y , self.width, self.height))
+                self.tailx = self.tailx + 50
+        self.tailx = self.x
+        self.taily = self.y        
+          
+                
+            
         
 
     
@@ -136,6 +160,7 @@ class food():
 #Declare sprites
 anaconda = snake(50, 50, 1)
 mouse = food(25, 25)
+clock = pygame.time.Clock()
 
 def redrawgamewindow():
     anaconda.drawsnake()
@@ -145,8 +170,9 @@ def redrawgamewindow():
 
 
 run = True
+#MAINLOOP
 while run:
-    pygame.time.delay(10)
+    clock.tick(60)
 
     mouse.eat()
       
