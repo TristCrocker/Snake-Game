@@ -22,6 +22,9 @@ class snake():
         self.leftpress = False
         self.downpress = False
         self.uppress = False
+        self.extralength = []
+        self.extrablocks = 0
+        self.direction = ""
 
         
     
@@ -38,21 +41,25 @@ class snake():
             self.leftpress = False
             self.uppress = False
             self.downpress = False
+            self.direction = "right"
         if keys[pygame.K_LEFT]:
             self.leftpress = True
             self.rightpress = False
             self.uppress = False
             self.downpress = False
+            self.direction = "left"
         if keys[pygame.K_DOWN]:
             self.downpress = True
             self.leftpress = False
             self.uppress = False
             self.rightpress = False
+            self.direction = "down"
         if keys[pygame.K_UP]:
             self.uppress = True
             self.leftpress = False
             self.rightpress = False
             self.downpress = False
+            self.direction = "up"
 
         #MOVEMENT BELOW
         if self.rightpress and (self.x < 450):
@@ -79,9 +86,22 @@ class snake():
     def drawsnake(self):
         #Drawing snake
         win.fill((0,0,0)) 
-        #Draw hitbox with character to ensure it moves witrh character
+        #Draw hitbox with character to ensure it moves with character
         pygame.draw.rect(win, (0,0,255), (self.hitbox), 4)
         pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, self.width, self.height))
+        #Draws the extra length when food eaten
+        for i in range(len(self.extralength)):
+            if self.direction == "up":
+                pygame.draw.rect(win, (255, 0, 0), (self.x, self.y + self.extralength[i] , self.width, self.height))
+            if self.direction == "down":
+                pygame.draw.rect(win, (255, 0, 0), (self.x, self.y - self.extralength[i] , self.width, self.height))
+            if self.direction == "right":
+                pygame.draw.rect(win, (255, 0, 0), (self.x - self.extralength[i], self.y , self.width, self.height))
+            if self.direction == "left":
+                pygame.draw.rect(win, (255, 0, 0), (self.x + self.extralength[i], self.y , self.width, self.height))
+        
+
+    
         
         
 
@@ -107,8 +127,9 @@ class food():
     def drawfood(self):
         #Drawing Food
         #Draw hitbox with food to ensure it moves with food
-        pygame.draw.rect(win, (0,0,255), (self.hitbox), 4)
+        pygame.draw.rect(win, (0,0,255), (self.hitbox), 8)
         pygame.draw.rect(win, (255, 0, 255), (self.x, self.y, self.width, self.height))
+        
 
     
        
@@ -122,6 +143,7 @@ def redrawgamewindow():
     pygame.display.update()
 
 
+
 run = True
 while run:
     pygame.time.delay(10)
@@ -133,9 +155,24 @@ while run:
         if event.type == pygame.QUIT:
             run = False
 
-    #Check if snake touching food
-    if (anaconda.y > mouse.hitbox[1]) and (anaconda.y < mouse.hitbox [1] +  mouse.hitbox[3]):
-        mouse.eaten = True
+    #Check if snake touching food (Collision)
+    for i in range(anaconda.width):
+        
+        #for loop check if any point on the snake if within the same area as food (Not just top left corner)
+        if ((anaconda.hitbox[0] + i >= mouse.hitbox[0]) and (anaconda.hitbox[0] + i <= mouse.hitbox [0] +  mouse.hitbox[2])) and ((anaconda.hitbox[1] + i >= mouse.hitbox[1]) and (anaconda.hitbox[1] + i <= mouse.hitbox [1] +  mouse.hitbox[3])):
+            #Check if x-value (top-left point of box) is in the same x-value region as the food (Horizontally)
+            #same for y-value\
+            #Two checks must happen at same time
+            #increase size of snake
+            anaconda.extrablocks += 1
+            #Add new position to where new block must be drawn
+            anaconda.extralength.append(anaconda.extrablocks * 50) 
+            mouse.eaten = True
+            break
+        
+
+
+
 
     redrawgamewindow()
     anaconda.checkmovement()
