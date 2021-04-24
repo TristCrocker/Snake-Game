@@ -22,12 +22,10 @@ class snake():
         self.leftpress = False
         self.downpress = False
         self.uppress = False
-        self.extralength = []
+        self.blockpositions = [(self.x, self.y, self.width, self.height)]
         self.extrablocks = 0
         self.direction = ""
-        self.taily = 50
-        self.tailx = 50
-
+ 
         
     
     def checkmovement(self):
@@ -67,17 +65,44 @@ class snake():
         if self.rightpress and (self.x < 450):
         #Must use 450 not 500 to compensate for width of container
         #continous movement of container until edge
-            self.x += self.vel    
-            self.tailx += self.vel
+            for pos in range(len(self.blockpositions) - 1, 0, -1):
+                print(pos)
+                    
+                self.blockpositions[pos] = self.blockpositions[pos - 1] 
+                
+            self.x += self.vel
+            self.blockpositions[0] = (self.x, self.y, self.width, self.height)
+
+            
         if self.leftpress and (self.x > 0):
+            for pos in range(len(self.blockpositions) - 1, 0, -1):
+                    
+                self.blockpositions[pos] = self.blockpositions[pos - 1] 
             self.x -= self.vel  
-            self.tailx -= self.vel 
+            self.blockpositions[0] = (self.x, self.y, self.width, self.height)
+
+                      
         if self.downpress and (self.y < 450):
+            for pos in range(len(self.blockpositions) - 1, 0, -1):
+                    
+                self.blockpositions[pos] = self.blockpositions[pos - 1] 
             self.y += self.vel 
-            self.taily += self.vel 
+            self.blockpositions[0] = (self.x, self.y, self.width, self.height)
+
+                      
         if self.uppress and (self.y > 0):
+            for pos in range(len(self.blockpositions) - 1, 0, -1):
+                    
+                self.blockpositions[pos] = self.blockpositions[pos - 1] 
             self.y -= self.vel
-            self.taily -= self.vel
+            self.blockpositions[0] = (self.x, self.y, self.width, self.height)
+
+          
+        
+        #Store head position in list of positions
+        
+        #Change all positions to point to poisiton in front
+  
 
         #update hitbox to ensure it moves with box (As values in hitbox have been changed)
         self.hitbox = (self.x, self.y, self.width, self.height)
@@ -93,42 +118,15 @@ class snake():
         #Drawing snake
         win.fill((0,0,0)) 
         #Draw hitbox with character to ensure it moves with character
-        pygame.draw.rect(win, (0,0,255), (self.hitbox), 4)
-        pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, self.width, self.height))
+        # pygame.draw.rect(win, (0,0,255), (self.hitbox), 4)
+        # pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, self.width, self.height))
         #Draws the extra length when food eaten
-        for i in range(self.extrablocks):
-            
-
-
-            if self.direction == "up":
-                #Must draw the new block relative to the snake's tail block drawn, not relative to the snakes head block to ensure each new block follows the previous one   
-                pygame.draw.rect(win, (255, 0, 0), (self.tailx, self.taily + 50 , self.width, self.height))
-                #Set new tail coords
-                #Problem - tail cord not resetting and so every refresh, the tail just gets longer
-                #  and longer
-                self.taily = self.taily + 50
-                
-                
-                
-            if self.direction == "down":
-                pygame.draw.rect(win, (255, 0, 0), (self.tailx, self.taily - 50 , self.width, self.height))
-                
-                self.taily = self.taily - 50
-                
-                
-            if self.direction == "right":
-                pygame.draw.rect(win, (255, 0, 0), (self.tailx - 50, self.taily , self.width, self.height))
-                self.tailx = self.tailx - 50
-
-                
-                
-                
-            if self.direction == "left":
-                pygame.draw.rect(win, (255, 0, 0), (self.tailx + 50, self.y , self.width, self.height))
-                self.tailx = self.tailx + 50
-                
-        self.tailx = self.x
-        self.taily = self.y        
+        
+        for i in range(len(self.blockpositions)):
+        
+            pygame.draw.rect(win, (255, 0, 0), self.blockpositions[i])
+        #     print(self.blockpositions[i])
+        # print("Break")
           
                 
             
@@ -181,7 +179,7 @@ def redrawgamewindow():
 run = True
 #MAINLOOP
 while run:
-    clock.tick(10)
+    clock.tick(20)
 
     mouse.eat()
       
@@ -199,9 +197,19 @@ while run:
             #same for y-value\
             #Two checks must happen at same time
             #increase size of snake
+            
+
+            #Add position of new block which has been added to the tail, to the list blockpositions (Check which direction facing to know where to add new block)
+            if anaconda.direction == "up":
+                anaconda.blockpositions.append((anaconda.blockpositions[anaconda.extrablocks][0], anaconda.blockpositions[anaconda.extrablocks][1] + 50, anaconda.blockpositions[anaconda.extrablocks][2], anaconda.blockpositions[anaconda.extrablocks][3]))
+            if anaconda.direction == "down":
+                anaconda.blockpositions.append((anaconda.blockpositions[anaconda.extrablocks][0], anaconda.blockpositions[anaconda.extrablocks][1] - 50, anaconda.blockpositions[anaconda.extrablocks][2], anaconda.blockpositions[anaconda.extrablocks][3]))
+            if anaconda.direction == "right":
+                anaconda.blockpositions.append((anaconda.blockpositions[anaconda.extrablocks][0] - 50, anaconda.blockpositions[anaconda.extrablocks][1], anaconda.blockpositions[anaconda.extrablocks][2], anaconda.blockpositions[anaconda.extrablocks][3]))
+            if anaconda.direction == "left":
+                anaconda.blockpositions.append((anaconda.blockpositions[anaconda.extrablocks][0] + 50, anaconda.blockpositions[anaconda.extrablocks][1], anaconda.blockpositions[anaconda.extrablocks][2], anaconda.blockpositions[anaconda.extrablocks][3]))
+                
             anaconda.extrablocks += 1
-            #Add new position to where new block must be drawn
-            anaconda.extralength.append(anaconda.extrablocks * 50) 
             mouse.eaten = True
             break
         
