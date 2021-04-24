@@ -97,6 +97,9 @@ class snake():
         pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, self.width, self.height))
         #Draws the extra length when food eaten
         for i in range(self.extrablocks):
+            
+
+
             if self.direction == "up":
                 #Must draw the new block relative to the snake's tail block drawn, not relative to the snakes head block to ensure each new block follows the previous one   
                 pygame.draw.rect(win, (255, 0, 0), (self.tailx, self.taily + 50 , self.width, self.height))
@@ -105,19 +108,25 @@ class snake():
                 #  and longer
                 self.taily = self.taily + 50
                 
+                
+                
             if self.direction == "down":
                 pygame.draw.rect(win, (255, 0, 0), (self.tailx, self.taily - 50 , self.width, self.height))
                 
                 self.taily = self.taily - 50
                 
+                
             if self.direction == "right":
                 pygame.draw.rect(win, (255, 0, 0), (self.tailx - 50, self.taily , self.width, self.height))
                 self.tailx = self.tailx - 50
+
+                
                 
                 
             if self.direction == "left":
                 pygame.draw.rect(win, (255, 0, 0), (self.tailx + 50, self.y , self.width, self.height))
                 self.tailx = self.tailx + 50
+                
         self.tailx = self.x
         self.taily = self.y        
           
@@ -158,7 +167,7 @@ class food():
     
        
 #Declare sprites
-anaconda = snake(50, 50, 1)
+anaconda = snake(50, 50, 50)
 mouse = food(25, 25)
 clock = pygame.time.Clock()
 
@@ -172,7 +181,7 @@ def redrawgamewindow():
 run = True
 #MAINLOOP
 while run:
-    clock.tick(60)
+    clock.tick(10)
 
     mouse.eat()
       
@@ -202,7 +211,7 @@ while run:
 
     redrawgamewindow()
     anaconda.checkmovement()
-    anaconda.checkdeath()
+    #anaconda.checkdeath()
   
 
 #rendering and displaying font
