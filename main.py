@@ -8,12 +8,15 @@ win = pygame.display.set_mode((500,500))
 pygame.display.set_caption("Snake Game")
 #creating font object
 myfont = pygame.font.SysFont("Comic Sans MS", 25)
-
+#Load startwindow bg
+startBG = pygame.image.load('Startwindowbg.jpg')
+startcolor = (0,100,0)
+quitcolor = (0,100,0)
 class snake():
     
     def __init__(self, width, height, vel):
-        self.x = 50
-        self.y = 50
+        self.x = 60
+        self.y = 60
         self.width = width
         self.height = height
         self.vel = vel
@@ -62,47 +65,36 @@ class snake():
             self.direction = "up"
 
         #MOVEMENT BELOW
-        if self.rightpress and (self.x < 450):
+        if self.rightpress and (self.x < 480):
         #Must use 450 not 500 to compensate for width of container
         #continous movement of container until edge
+            #Change all positions to point to poisiton in front (Except head position)
             for pos in range(len(self.blockpositions) - 1, 0, -1):
-                print(pos)
-                    
                 self.blockpositions[pos] = self.blockpositions[pos - 1] 
-                
+            
             self.x += self.vel
             self.blockpositions[0] = (self.x, self.y, self.width, self.height)
 
-            
         if self.leftpress and (self.x > 0):
-            for pos in range(len(self.blockpositions) - 1, 0, -1):
-                    
+            for pos in range(len(self.blockpositions) - 1, 0, -1):  
                 self.blockpositions[pos] = self.blockpositions[pos - 1] 
+
             self.x -= self.vel  
             self.blockpositions[0] = (self.x, self.y, self.width, self.height)
-
-                      
-        if self.downpress and (self.y < 450):
+         
+        if self.downpress and (self.y < 480):
             for pos in range(len(self.blockpositions) - 1, 0, -1):
-                    
                 self.blockpositions[pos] = self.blockpositions[pos - 1] 
+
             self.y += self.vel 
             self.blockpositions[0] = (self.x, self.y, self.width, self.height)
-
-                      
+      
         if self.uppress and (self.y > 0):
             for pos in range(len(self.blockpositions) - 1, 0, -1):
-                    
                 self.blockpositions[pos] = self.blockpositions[pos - 1] 
+
             self.y -= self.vel
             self.blockpositions[0] = (self.x, self.y, self.width, self.height)
-
-          
-        
-        #Store head position in list of positions
-        
-        #Change all positions to point to poisiton in front
-  
 
         #update hitbox to ensure it moves with box (As values in hitbox have been changed)
         self.hitbox = (self.x, self.y, self.width, self.height)
@@ -111,31 +103,20 @@ class snake():
         #Must use global so no new instance of run is created ie run will remain changed outside function
         global run
         #CHECK IF DEAD (HIT WALL OR BITE TAIL)
-        if (self.x == 450 or self.x == 0) or (self.y == 450 or self.y == 0):
+        if (self.x == 480 or self.x == 0) or (self.y == 480 or self.y == 0):
             run = False
     
     def drawsnake(self):
         #Drawing snake
         win.fill((0,0,0)) 
         #Draw hitbox with character to ensure it moves with character
-        # pygame.draw.rect(win, (0,0,255), (self.hitbox), 4)
-        # pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, self.width, self.height))
-        #Draws the extra length when food eaten
+        pygame.draw.rect(win, (0,0,255), (self.hitbox), 4)
         
+        #Draws the extra length when food eaten (From the blockpositions list)
         for i in range(len(self.blockpositions)):
-        
             pygame.draw.rect(win, (255, 0, 0), self.blockpositions[i])
-        #     print(self.blockpositions[i])
-        # print("Break")
-          
-                
-            
-        
-
-    
-        
-        
-
+            pygame.draw.rect(win, (0,0,255), (self.hitbox), 4)
+     
 
 class food():
         
@@ -161,32 +142,73 @@ class food():
         pygame.draw.rect(win, (0,0,255), (self.hitbox), 8)
         pygame.draw.rect(win, (255, 0, 255), (self.x, self.y, self.width, self.height))
         
-
-    
-       
 #Declare sprites
-anaconda = snake(50, 50, 50)
-mouse = food(25, 25)
+anaconda = snake(20, 20, 20)
+mouse = food(30, 30)
 clock = pygame.time.Clock()
 
-def redrawgamewindow():
+def drawgamewindow():
     anaconda.drawsnake()
     mouse.drawfood()
     pygame.display.update()
 
+def drawstartwindow():
 
+    win.fill((0,0,0))
+    win.blit(startBG, (0,0))
+    startsurface = myfont.render('Start', True, startcolor)
+    win.blit(startsurface,(50,200))
+    
+    quitsurface = myfont.render('Quit', True, quitcolor)
+    win.blit(quitsurface,(360,200))
+    pygame.display.update()
 
 run = True
+startwindow = True
+
 #MAINLOOP
 while run:
     clock.tick(20)
+
+    #STARTWINDOW LOOP
+    while startwindow and run:
+
+        #Get event from queue and load into var event, then check if a specific event has occured (Use event to check if events occured)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = pygame.quit()
+        drawstartwindow()
+
+        mousepos = pygame.mouse.get_pos()
+        #Change color of startbutton when hovering
+        if (mousepos[0] >= 50 and mousepos[0] <= 116) and (mousepos[1] >= 200 and mousepos[1] <= 235):
+            startcolor = (0,200,0)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                startwindow = False
+                
+        else:
+            startcolor = (0, 100, 0)
+
+        if (mousepos[0] >= 360 and mousepos[0] <= 426) and (mousepos[1] >= 200 and mousepos[1] <= 235):
+            quitcolor = (0,200,0)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pygame.quit()
+        else:
+            quitcolor = (0, 100, 0)
+        
+
+        
+         
+
+
+
 
     mouse.eat()
       
     for event in pygame.event.get():
         #Get event from queue and load into var event, then check if a specific event has occured
         if event.type == pygame.QUIT:
-            run = False
+            pygame.quit()
 
     #Check if snake touching food (Collision)
     for i in range(anaconda.width):
@@ -194,20 +216,18 @@ while run:
         #for loop check if any point on the snake if within the same area as food (Not just top left corner)
         if ((anaconda.hitbox[0] + i >= mouse.hitbox[0]) and (anaconda.hitbox[0] + i <= mouse.hitbox [0] +  mouse.hitbox[2])) and ((anaconda.hitbox[1] + i >= mouse.hitbox[1]) and (anaconda.hitbox[1] + i <= mouse.hitbox [1] +  mouse.hitbox[3])):
             #Check if x-value (top-left point of box) is in the same x-value region as the food (Horizontally)
-            #same for y-value\
+            #same for y-value
             #Two checks must happen at same time
             #increase size of snake
-            
-
             #Add position of new block which has been added to the tail, to the list blockpositions (Check which direction facing to know where to add new block)
             if anaconda.direction == "up":
-                anaconda.blockpositions.append((anaconda.blockpositions[anaconda.extrablocks][0], anaconda.blockpositions[anaconda.extrablocks][1] + 50, anaconda.blockpositions[anaconda.extrablocks][2], anaconda.blockpositions[anaconda.extrablocks][3]))
+                anaconda.blockpositions.append((anaconda.blockpositions[anaconda.extrablocks][0], anaconda.blockpositions[anaconda.extrablocks][1] + 20, anaconda.blockpositions[anaconda.extrablocks][2], anaconda.blockpositions[anaconda.extrablocks][3]))
             if anaconda.direction == "down":
-                anaconda.blockpositions.append((anaconda.blockpositions[anaconda.extrablocks][0], anaconda.blockpositions[anaconda.extrablocks][1] - 50, anaconda.blockpositions[anaconda.extrablocks][2], anaconda.blockpositions[anaconda.extrablocks][3]))
+                anaconda.blockpositions.append((anaconda.blockpositions[anaconda.extrablocks][0], anaconda.blockpositions[anaconda.extrablocks][1] - 20, anaconda.blockpositions[anaconda.extrablocks][2], anaconda.blockpositions[anaconda.extrablocks][3]))
             if anaconda.direction == "right":
-                anaconda.blockpositions.append((anaconda.blockpositions[anaconda.extrablocks][0] - 50, anaconda.blockpositions[anaconda.extrablocks][1], anaconda.blockpositions[anaconda.extrablocks][2], anaconda.blockpositions[anaconda.extrablocks][3]))
+                anaconda.blockpositions.append((anaconda.blockpositions[anaconda.extrablocks][0] - 20, anaconda.blockpositions[anaconda.extrablocks][1], anaconda.blockpositions[anaconda.extrablocks][2], anaconda.blockpositions[anaconda.extrablocks][3]))
             if anaconda.direction == "left":
-                anaconda.blockpositions.append((anaconda.blockpositions[anaconda.extrablocks][0] + 50, anaconda.blockpositions[anaconda.extrablocks][1], anaconda.blockpositions[anaconda.extrablocks][2], anaconda.blockpositions[anaconda.extrablocks][3]))
+                anaconda.blockpositions.append((anaconda.blockpositions[anaconda.extrablocks][0] + 20, anaconda.blockpositions[anaconda.extrablocks][1], anaconda.blockpositions[anaconda.extrablocks][2], anaconda.blockpositions[anaconda.extrablocks][3]))
                 
             anaconda.extrablocks += 1
             mouse.eaten = True
@@ -216,15 +236,15 @@ while run:
 
 
 
-
-    redrawgamewindow()
+    anaconda.checkdeath()
+    drawgamewindow()
     anaconda.checkmovement()
-    #anaconda.checkdeath()
+    
   
 
 #rendering and displaying font
 textsurface = myfont.render('You Died', True, (255, 255, 0))
-win.blit(textsurface,(210,230))
+win.blit(textsurface,(200,200))
 pygame.display.update()
 pygame.time.delay(2000)
 pygame.quit()
