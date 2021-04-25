@@ -105,7 +105,17 @@ class snake():
         #CHECK IF DEAD (HIT WALL OR BITE TAIL)
         if (self.x == 480 or self.x == 0) or (self.y == 480 or self.y == 0):
             run = False
-    
+
+        # Loop through all extra block co-ords to see if intersecting any
+        for j in range(1, len(self.blockpositions)):
+            #Check if any parts touching
+            for k in range(21):
+                #Checks if the head is colliding with any part of tail
+                if ((self.blockpositions[0][0] + k > self.blockpositions[j][0]) and (self.blockpositions[0][0] + k < self.blockpositions[j][0] + self.blockpositions[j][2])) and ((self.blockpositions[0][1] + k > self.blockpositions[j][1]) and (self.blockpositions[0][1] + k < self.blockpositions[j][1] + self.blockpositions[j][3])):
+                    run = False
+            
+
+
     def drawsnake(self):
         #Drawing snake
         win.fill((0,0,0)) 
@@ -154,11 +164,13 @@ def drawgamewindow():
 
 def drawstartwindow():
 
+
     win.fill((0,0,0))
+    #Draw start button
     win.blit(startBG, (0,0))
     startsurface = myfont.render('Start', True, startcolor)
     win.blit(startsurface,(50,200))
-    
+    #Draw quit button
     quitsurface = myfont.render('Quit', True, quitcolor)
     win.blit(quitsurface,(360,200))
     pygame.display.update()
@@ -211,8 +223,7 @@ while run:
             pygame.quit()
 
     #Check if snake touching food (Collision)
-    for i in range(anaconda.width):
-        
+    for i in range(anaconda.width + 1):
         #for loop check if any point on the snake if within the same area as food (Not just top left corner)
         if ((anaconda.hitbox[0] + i >= mouse.hitbox[0]) and (anaconda.hitbox[0] + i <= mouse.hitbox [0] +  mouse.hitbox[2])) and ((anaconda.hitbox[1] + i >= mouse.hitbox[1]) and (anaconda.hitbox[1] + i <= mouse.hitbox [1] +  mouse.hitbox[3])):
             #Check if x-value (top-left point of box) is in the same x-value region as the food (Horizontally)
