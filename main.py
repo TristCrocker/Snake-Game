@@ -7,11 +7,15 @@ pygame.font.init()
 win = pygame.display.set_mode((500,500))
 pygame.display.set_caption("Snake Game")
 #creating font object
-myfont = pygame.font.SysFont("Comic Sans MS", 25)
-#Load startwindow bg
+myfont = pygame.font.SysFont("Roboto", 25)
+#Load images
 startBG = pygame.image.load('Startwindowbg.jpg')
+gamebg = pygame.image.load('snakegamebg.jpg')
+cakeimg = pygame.image.load('ratsprite.png')
+
 startcolor = (0,100,0)
 quitcolor = (0,100,0)
+
 class snake():
     
     def __init__(self, width, height, vel):
@@ -28,6 +32,7 @@ class snake():
         self.blockpositions = [(self.x, self.y, self.width, self.height)]
         self.extrablocks = 0
         self.direction = ""
+        self.score = 0
  
         
     
@@ -110,7 +115,7 @@ class snake():
         for j in range(1, len(self.blockpositions)):
             #Check if any parts touching
             for k in range(21):
-                #Checks if the head is colliding with any part of tail
+                #Checks if the head is colliding with any part of tail 
                 if ((self.blockpositions[0][0] + k > self.blockpositions[j][0]) and (self.blockpositions[0][0] + k < self.blockpositions[j][0] + self.blockpositions[j][2])) and ((self.blockpositions[0][1] + k > self.blockpositions[j][1]) and (self.blockpositions[0][1] + k < self.blockpositions[j][1] + self.blockpositions[j][3])):
                     run = False
             
@@ -118,14 +123,10 @@ class snake():
 
     def drawsnake(self):
         #Drawing snake
-        win.fill((0,0,0)) 
-        #Draw hitbox with character to ensure it moves with character
-        pygame.draw.rect(win, (0,0,255), (self.hitbox), 4)
-        
-        #Draws the extra length when food eaten (From the blockpositions list)
+         #Draws the extra length when food eaten (From the blockpositions list)
         for i in range(len(self.blockpositions)):
-            pygame.draw.rect(win, (255, 0, 0), self.blockpositions[i])
-            pygame.draw.rect(win, (0,0,255), (self.hitbox), 4)
+            pygame.draw.rect(win, (0, 100, 0), self.blockpositions[i])
+            
      
 
 class food():
@@ -149,8 +150,8 @@ class food():
     def drawfood(self):
         #Drawing Food
         #Draw hitbox with food to ensure it moves with food
-        pygame.draw.rect(win, (0,0,255), (self.hitbox), 8)
-        pygame.draw.rect(win, (255, 0, 255), (self.x, self.y, self.width, self.height))
+        win.blit(cakeimg, (self.x, self.y, self.width, self.height))
+        
         
 #Declare sprites
 anaconda = snake(20, 20, 20)
@@ -158,9 +159,18 @@ mouse = food(30, 30)
 clock = pygame.time.Clock()
 
 def drawgamewindow():
+    #Must always fill first to ensure refresh
+    win.blit(gamebg, (0,0))
     anaconda.drawsnake()
     mouse.drawfood()
+    #Draw score
+    scoresurface = myfont.render("Score: " + str(anaconda.score), True, (0,100,0))
+    win.blit( scoresurface, (10, 10))
+
     pygame.display.update()
+
+    
+    
 
 def drawstartwindow():
 
@@ -174,6 +184,8 @@ def drawstartwindow():
     quitsurface = myfont.render('Quit', True, quitcolor)
     win.blit(quitsurface,(360,200))
     pygame.display.update()
+
+
 
 run = True
 startwindow = True
@@ -207,13 +219,6 @@ while run:
                 pygame.quit()
         else:
             quitcolor = (0, 100, 0)
-        
-
-        
-         
-
-
-
 
     mouse.eat()
       
@@ -239,7 +244,8 @@ while run:
                 anaconda.blockpositions.append((anaconda.blockpositions[anaconda.extrablocks][0] - 20, anaconda.blockpositions[anaconda.extrablocks][1], anaconda.blockpositions[anaconda.extrablocks][2], anaconda.blockpositions[anaconda.extrablocks][3]))
             if anaconda.direction == "left":
                 anaconda.blockpositions.append((anaconda.blockpositions[anaconda.extrablocks][0] + 20, anaconda.blockpositions[anaconda.extrablocks][1], anaconda.blockpositions[anaconda.extrablocks][2], anaconda.blockpositions[anaconda.extrablocks][3]))
-                
+            
+            anaconda.score += 100
             anaconda.extrablocks += 1
             mouse.eaten = True
             break
@@ -254,8 +260,8 @@ while run:
   
 
 #rendering and displaying font
-textsurface = myfont.render('You Died', True, (255, 255, 0))
-win.blit(textsurface,(200,200))
+deathsurface = myfont.render("You Died!", True, (255, 255, 0))
+win.blit(deathsurface,(200,200))
 pygame.display.update()
 pygame.time.delay(2000)
 pygame.quit()
