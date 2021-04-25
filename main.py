@@ -142,8 +142,8 @@ class food():
     def eat(self):
         #CHECK IF FOOD EATEN
         if self.eaten == True:
-            self.x = random.randint(2,500)
-            self.y = random.randint(2,500)
+            self.x = random.randint(0,470)
+            self.y = random.randint(0,470)
             self.eaten = False
             self.hitbox = (self.x, self.y, self.width, self.height)
     
@@ -160,12 +160,13 @@ clock = pygame.time.Clock()
 
 def drawgamewindow():
     #Must always fill first to ensure refresh
+            
     win.blit(gamebg, (0,0))
     anaconda.drawsnake()
     mouse.drawfood()
     #Draw score
     scoresurface = myfont.render("Score: " + str(anaconda.score), True, (0,100,0))
-    win.blit( scoresurface, (10, 10))
+    win.blit( scoresurface, (10, 15))
 
     pygame.display.update()
 
@@ -260,8 +261,15 @@ while run:
   
 
 #rendering and displaying font
-deathsurface = myfont.render("You Died!", True, (255, 255, 0))
+#Must use two surfaces to print on a new line  
+pygame.time.delay(500)
+win.blit(gamebg, (0,0))
+deathsurface = myfont.render("You Died!", True, (0, 100, 0))
 win.blit(deathsurface,(200,200))
+deathsurface = myfont.render("Score: " + str(anaconda.score), True, (0, 100, 0))
+win.blit(deathsurface,(200,230))
 pygame.display.update()
 pygame.time.delay(2000)
 pygame.quit()
+
+
